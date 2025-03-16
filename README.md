@@ -2,7 +2,6 @@
 
 ---
 
-```markdown
 # Projet Cloud-1 : Déploiement automatisé de WordPress sur GCP avec Terraform
 
 Ce projet consiste à déployer une infrastructure Docker pour héberger un site WordPress avec PHPMyAdmin et une base de données MySQL sur Google Cloud Platform (GCP). L'objectif est d'automatiser le déploiement en utilisant Terraform pour l'Infrastructure as Code (IaC) et Docker-compose pour la gestion des conteneurs.
