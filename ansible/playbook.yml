@@ -1,0 +1,22 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Install Docker-compose
+      pip:
+        name: docker-compose
+        state: present
+
+    - name: Copy docker-compose.yml
+      copy:
+        src: ./docker-compose.yml
+        dest: /home/devuser/docker-compose.yml
+
+    - name: Start containers
+      command: docker-compose up -d
+      args:
+        chdir: /home/devuser
