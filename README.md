@@ -172,15 +172,5 @@ Confirmez en tapant `yes`.
 
 Ce projet vous a permis de déployer une infrastructure cloud automatisée pour héberger un site WordPress avec PHPMyAdmin et une base de données MySQL. Vous avez utilisé Terraform pour l'IaC, Docker-compose pour la gestion des conteneurs, et Let's Encrypt pour sécuriser les communications avec HTTPS.
 
-N'oubliez pas de bien documenter votre travail et de tester chaque étape pour obtenir la note maximale. Bonne chance ! 🚀
 ```
 
----
-
-### **Explication du README.md**
-- **Structure claire** : Le fichier est divisé en sections correspondant aux étapes du projet.
-- **Commandes précises** : Chaque commande à exécuter est clairement indiquée.
-- **Conseils et bonnes pratiques** : Des conseils sont donnés pour optimiser les coûts et sécuriser l'infrastructure.
-- **Nettoyage des ressources** : Une section est dédiée à la destruction des ressources pour éviter des frais inutiles.
-
-Avec ce fichier `README.md`, vous avez un guide complet pour réaliser le projet étape par étape, tout en respectant les exigences pour obtenir la note maximale.
