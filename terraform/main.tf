@@ -3,6 +3,49 @@ provider "google" {
   region  = "europe-west1"
 }
 
+# Règles de pare-feu pour HTTP (port 80), HTTPS (port 443) et phpMyAdmin (port 8080)
+resource "google_compute_firewall" "allow_http" {
+  name    = "allow-http"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+
+  direction = "INGRESS"
+  priority  = 1000
+  source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_firewall" "allow_https" {
+  name    = "allow-https"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443"]
+  }
+
+  direction = "INGRESS"
+  priority  = 1000
+  source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_firewall" "allow_phpmyadmin" {
+  name    = "allow-phpmyadmin"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+
+  direction = "INGRESS"
+  priority  = 1000
+  source_ranges = ["0.0.0.0/0"]
+}
+
 resource "google_compute_instance" "vm_instance" {
   name         = "wordpress-vm"
   machine_type = "e2-medium"
@@ -21,6 +64,18 @@ resource "google_compute_instance" "vm_instance" {
 
   metadata = {
     ssh-keys = "devuser:${file("~/.ssh/id_rsa.pub")}"
+  }
+
+    # Transfert des env sur la VM
+  provisioner "file" {
+    source      = "../.env"
+    destination = "/home/devuser/.env"
+    connection {
+      type        = "ssh"
+      user        = "devuser"
+      private_key = file("~/.ssh/id_rsa")
+      host        = self.network_interface[0].access_config[0].nat_ip
+    }
   }
 
   # Transfert du fichier docker-compose.yml sur la VM
