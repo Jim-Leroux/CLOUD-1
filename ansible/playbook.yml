@@ -6,6 +6,7 @@
         name: docker
         state: started
         enabled: yes
+        state: started
 
     - name: Start Docker Compose services
       command: docker-compose up -d
