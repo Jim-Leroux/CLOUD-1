@@ -1,0 +1,77 @@
+version: '3.8'
+
+networks:
+  inception_network:
+    driver: bridge
+
+volumes:
+  wp_data:
+    driver: local
+  db_data:
+    driver: local
+
+services:
+  mariadb:
+    image: mariadb:10.5
+    container_name: mariadb
+    restart: always
+    networks:
+      - inception_network
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    # Pas de ports exposés à l'extérieur pour bloquer l'accès public
+
+  wordpress:
+    image: wordpress:php7.4-fpm
+    container_name: wordpress
+    restart: always
+    depends_on:
+      - mariadb
+    networks:
+      - inception_network
+    env_file:
+      - .env
+    environment:
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+    volumes:
+      - wp_data:/var/www/html
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: phpmyadmin
+    restart: always
+    depends_on:
+      - mariadb
+    networks:
+      - inception_network
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+    # Accessible uniquement via le Reverse Proxy Nginx
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - wordpress
+      - phpmyadmin
+    networks:
+      - inception_network
+    volumes:
+      - wp_data:/var/www/html:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro

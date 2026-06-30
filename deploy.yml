@@ -1,0 +1,65 @@
+---
+- name: Deploiement Cloud-1
+  hosts: cloud_server
+  become: yes
+  vars:
+    project_dest: "/home/ubuntu/app"
+
+  tasks:
+    - name: Mise a jour du cache apt
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Installation des prerequis
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - python3-pip
+        state: present
+
+    - name: Installation de Docker et Docker Compose
+      apt:
+        name:
+          - docker.io
+          - docker-compose-v2
+        state: present
+
+    - name: Creation des dossiers du projet
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ project_dest }}"
+        - "{{ project_dest }}/nginx"
+        - "{{ project_dest }}/nginx/conf.d"
+        - "{{ project_dest }}/nginx/ssl"
+
+    - name: Copie des fichiers de configuration
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ project_dest }}/{{ item.dest }}"
+        mode: '0644'
+      loop:
+        - { src: "./docker-compose.yml", dest: "docker-compose.yml" }
+        - { src: "./.env", dest: ".env" }
+        - { src: "./nginx/conf.d/default.conf", dest: "nginx/conf.d/default.conf" }
+
+    - name: Generation du certificat SSL auto-signe
+      command: >
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048
+        -keyout {{ project_dest }}/nginx/ssl/key.pem
+        -out {{ project_dest }}/nginx/ssl/cert.pem
+        -subj "/C=FR/ST=IDF/L=Paris/O=42/CN=62.210.238.70"
+      args:
+        creates: "{{ project_dest }}/nginx/ssl/cert.pem"
+
+    - name: Lancement de la stack Docker Compose
+      command: docker compose up -d
+      args:
+        chdir: "{{ project_dest }}"
