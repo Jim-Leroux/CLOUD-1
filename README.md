@@ -59,4 +59,4 @@ Exécutez la commande suivante depuis votre machine locale :
 ```bash
 ansible-playbook -i hosts.ini deploy.yml
 
-```# CLOUD-1
+```
